@@ -1,32 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function InputArea({ onSend, disabled }: {
   onSend: (input: string) => void,
   disabled: boolean
 }) {
   const [input, setInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Handle mobile keyboard appearance
   useEffect(() => {
-    const handleResize = () => {
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth'
-      });
+    const handleFocus = () => {
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 300);
     };
 
-    // Add visual viewport listener for better mobile support
-    const vp = window.visualViewport;
-    if (vp) {
-      vp.addEventListener('resize', handleResize);
-    }
-    
-    // Regular resize listener as fallback
-    window.addEventListener('resize', handleResize);
+    const currentInput = inputRef.current;
+    currentInput?.addEventListener('focus', handleFocus);
     
     return () => {
-      if (vp) vp.removeEventListener('resize', handleResize);
-      window.removeEventListener('resize', handleResize);
+      currentInput?.removeEventListener('focus', handleFocus);
     };
   }, []);
 
@@ -35,7 +31,6 @@ export default function InputArea({ onSend, disabled }: {
     if (input.trim() && !disabled) {
       onSend(input);
       setInput('');
-      // Scroll after sending message
       setTimeout(() => {
         window.scrollTo({
           top: document.body.scrollHeight,
@@ -46,34 +41,31 @@ export default function InputArea({ onSend, disabled }: {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="input-container relative w-full px-4">
-      <div className="relative mx-auto" style={{ maxWidth: 'min(100%, 800px)' }}>
-        <div className="flex items-center border border-gray-300 rounded-full bg-white focus-within:ring-2 focus-within:ring-blue-500">
-          <div className="pl-4 text-gray-400">
+    <form onSubmit={handleSubmit} className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center bg-gray-100 rounded-full px-4">
+          <div className="text-gray-400 mr-2">
             🤷‍♀️
           </div>
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 py-3 px-3 focus:outline-none bg-transparent disabled:opacity-50"
+            className="flex-1 py-3 bg-transparent focus:outline-none text-base disabled:opacity-50"
             style={{
-              height: '3.25rem',
-              fontSize: '1.5rem',
-              boxSizing: 'border-box',
-              paddingRight: '5rem',
+              height: '2.75rem',
+              paddingRight: '1rem',
             }}
             placeholder="Ask anything..."
             disabled={disabled}
           />
           <button
             type="submit"
-            className="h-10 mr-2 my-1 text-white font-medium px-4 rounded-full shadow transition-all duration-200 ease-in-out disabled:opacity-50 active:scale-95"
+            className="ml-2 bg-blue-500 text-white rounded-full px-4 py-2 text-sm font-medium disabled:opacity-50 transition-all duration-200 active:scale-95"
             style={{
               minWidth: '4.5rem',
-              background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
-              boxShadow: '0 2px 6px rgba(59, 130, 246, 0.3)',
-              fontSize: '0.9rem'
+              height: '2.5rem'
             }}
             disabled={disabled || !input.trim()}
           >

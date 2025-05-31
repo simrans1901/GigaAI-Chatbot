@@ -21,7 +21,8 @@ body {
   background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
   background-size: 16px 16px;
   overflow-x: hidden;
-  touch-action: manipulation; /* Better touch response */
+  touch-action: manipulation;
+   padding-bottom: 80px; /* Better touch response */
 }
 @media (max-width: 768px) {
   .input-container {
